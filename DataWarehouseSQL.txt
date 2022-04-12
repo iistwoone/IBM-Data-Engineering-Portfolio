@@ -1,0 +1,34 @@
+#Grouping
+select dimcountry.country, dimcategory.category, sum(factsales.amount) as totalsales
+from factsales , dimcountry , dimcategory  
+where factsales.countryid = dimcountry.countryid
+AND factsales.categoryid = dimcategory.categoryid
+group by grouping sets(dimcountry.country, dimcategory.category)
+order by dimcountry.country;
+
+#Rollup
+select dimdate.year, dimcountry.country, sum(factsales.amount) as totalsales
+from factsales , dimcountry , dimdate  
+where factsales.countryid = dimcountry.countryid
+AND factsales.dateid = dimdate.dateid
+group by rollup(dimdate.year, dimcountry.country)
+order by dimdate.year;
+
+#Cube
+select dimdate.year, dimcountry.country, avg(factsales.amount) as averagesales
+from factsales , dimcountry , dimdate  
+where factsales.countryid = dimcountry.countryid
+AND factsales.dateid = dimdate.dateid
+group by cube(dimdate.year, dimcountry.country)
+order by dimdate.year;
+
+#MQT
+CREATE TABLE total_sales_per_country (country, amount) AS
+(select dimcountry.country, sum(factsales.amount)
+from factsales 
+left join dimcountry
+on factsales.countryid = dimcountry.countryid
+group by dimcountry.country)
+     DATA INITIALLY DEFERRED
+     REFRESH DEFERRED
+     MAINTAINED BY SYSTEM;
